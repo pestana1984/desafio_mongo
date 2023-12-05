@@ -1,0 +1,37 @@
+version: '3.8'
+
+networks:
+  desafio-mongo-net:
+    driver: bridge
+
+volumes:
+  desafio-mongo-data:
+
+services:
+  mongodb:
+    image: mongo:${tag}
+    ports:
+      - 27017:27017
+    networks: 
+     - desafio-mongo-net
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongoroot
+      - MONGO_INITDB_ROOT_PASSWORD=mongopass
+    container_name: mongodb
+
+  mongo-express:
+    image: pestana1984/mongo-express:${tag}
+    build:
+      context: ./mongo-express
+      dockerfile: ./Dockerfile
+    ports:
+      - 8081:8081
+    depends_on:
+    - mongodb
+    networks:
+      - desafio-mongo-net
+    volumes:
+      - desafio-mongo-data:/data/db
+    environment:
+      - ME_CONFIG_MONGODB_URL=mongodb://mongoroot:mongopass@mongodb:27017/?authMechanism=DEFAULT
+    container_name: mongo-express
